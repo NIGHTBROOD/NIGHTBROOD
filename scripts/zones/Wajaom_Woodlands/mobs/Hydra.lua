@@ -1,0 +1,48 @@
+-----------------------------------
+-- Area: Wajaom Woodlands
+--  MOB: Hydra
+-- !pos -282 -24 -1 51
+-----------------------------------
+require("scripts/globals/titles");
+local ID = require("scripts/zones/Wajaom_Woodlands/IDs")
+-----------------------------------
+
+function onMobFight(mob, target)
+
+    local battletime = mob:getBattleTime();
+    local headgrow = mob:getLocalVar("headgrow");
+    local broken = mob:AnimationSub();
+
+    if (headgrow < battletime and broken > 0) then
+        mob:AnimationSub(broken - 1);
+        mob:setLocalVar("headgrow", battletime + 300);
+    end
+
+end;
+
+function onCriticalHit(mob)
+
+    local rand = math.random();
+    local battletime = mob:getBattleTime();
+    local headgrow = mob:getLocalVar("headgrow");
+    local headbreak = mob:getLocalVar("headbreak");
+    local broken = mob:AnimationSub();
+
+    if (rand <= 0.15 and battletime >= headbreak and broken < 2) then
+        mob:AnimationSub(broken + 1);
+        mob:setLocalVar("headgrow", battletime + math.random(120, 240))
+        mob:setLocalVar("headbreak", battletime + 300);
+    end
+
+end;
+
+function onMobDeath(mob, player, isKiller)
+
+    player:addTitle(dsp.title.HYDRA_HEADHUNTER);
+    player:addCurrency('bayld', 1);
+    player:messageSpecial(ID.text.BAYLD_OBTAINED, 1);
+end;
+
+function onMobDespawn(mob)
+    mob:setRespawnTime(172800 + math.random(0, 24) * 3600) -- 48 to 72 hours, in 1 hour windows
+end
